@@ -1,26 +1,382 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@custom-variant dark (&:is(.dark *));
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
+  --font-sans: var(--font-sans);
   --font-mono: var(--font-geist-mono);
+  --font-heading: var(--font-sans);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-muted-foreground: var(--sidebar-muted-foreground);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) * 0.55);
+  --radius-md: calc(var(--radius) * 0.75);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.35);
+  --radius-2xl: calc(var(--radius) * 1.75);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.8);
+
+  --ease-glass: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-out-soft: cubic-bezier(0.22, 0.61, 0.36, 1);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+/*
+ * Liquid glass.
+ *
+ * Tres capas: un fondo ambiental con luz de color, superficies translucidas
+ * que lo desenfocan, y un borde especular que es lo que hace que se lean como
+ * cristal y no como "caja borrosa". Todo sale de estas variables; ningun
+ * componente lleva colores fijos.
+ */
+:root {
+  --radius: 0.875rem;
+  --font-sans: var(--font-geist-sans);
+
+  --background: oklch(0.973 0.004 255);
+  --foreground: oklch(0.19 0.012 265);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.19 0.012 265);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.19 0.012 265);
+  --primary: oklch(0.55 0.215 262);
+  --primary-foreground: oklch(0.99 0 0);
+  --secondary: oklch(0.958 0.005 258);
+  --secondary-foreground: oklch(0.27 0.014 265);
+  --muted: oklch(0.958 0.005 258);
+  --muted-foreground: oklch(0.505 0.018 262);
+  --accent: oklch(0.945 0.022 258);
+  --accent-foreground: oklch(0.38 0.14 262);
+  --destructive: oklch(0.577 0.21 27.3);
+  --success: oklch(0.58 0.13 155);
+  --warning: oklch(0.72 0.15 75);
+  --border: oklch(0.895 0.008 258);
+  --input: oklch(0.895 0.008 258);
+  --ring: oklch(0.55 0.215 262);
+
+  --chart-1: oklch(0.55 0.215 262);
+  --chart-2: oklch(0.68 0.135 212);
+  --chart-3: oklch(0.6 0.135 158);
+  --chart-4: oklch(0.73 0.15 72);
+  --chart-5: oklch(0.56 0.18 315);
+
+  /* --- Material de cristal --- */
+  --glass-tint: 255 255 255;
+  --glass-thin: 0.38;
+  --glass-regular: 0.55;
+  --glass-thick: 0.68;
+  --glass-blur: 28px;
+  --glass-saturate: 180%;
+  /* Reflejo del borde superior: la clave para que parezca vidrio. */
+  --glass-specular: rgb(255 255 255 / 0.85);
+  --glass-specular-soft: rgb(255 255 255 / 0.35);
+  --glass-edge: rgb(255 255 255 / 0.55);
+  --glass-ring: rgb(14 22 48 / 0.07);
+  --glass-shadow:
+    0 1px 2px -1px rgb(14 22 48 / 0.09),
+    0 8px 20px -12px rgb(14 22 48 / 0.18),
+    0 24px 56px -28px rgb(14 22 48 / 0.24);
+  --glass-shadow-lift:
+    0 2px 4px -2px rgb(14 22 48 / 0.1),
+    0 16px 32px -14px rgb(14 22 48 / 0.22),
+    0 36px 72px -32px rgb(14 22 48 / 0.3);
+  /* Brillo que sigue al puntero (lo mueve GlassPanel). */
+  --glass-sheen: rgb(255 255 255 / 0.5);
+
+  /* --- Luz ambiental del fondo --- */
+  --ambient-1: oklch(0.7 0.17 258 / 0.5);
+  --ambient-2: oklch(0.76 0.14 202 / 0.45);
+  --ambient-3: oklch(0.7 0.1 296 / 0.2);
+  --ambient-base: oklch(0.973 0.004 255);
+
+  --sidebar: oklch(0.2 0.016 266);
+  --sidebar-foreground: oklch(0.9 0.006 260);
+  --sidebar-muted-foreground: oklch(0.64 0.014 262);
+  --sidebar-primary: oklch(0.62 0.2 262);
+  --sidebar-primary-foreground: oklch(0.99 0 0);
+  --sidebar-accent: oklch(0.3 0.02 266);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: rgb(255 255 255 / 0.1);
+  --sidebar-ring: oklch(0.62 0.2 262);
+  --sidebar-tint: 22 27 46;
+}
+
+.dark {
+  --background: oklch(0.155 0.012 266);
+  --foreground: oklch(0.945 0.005 260);
+  --card: oklch(0.205 0.014 266);
+  --card-foreground: oklch(0.945 0.005 260);
+  --popover: oklch(0.215 0.015 266);
+  --popover-foreground: oklch(0.945 0.005 260);
+  --primary: oklch(0.64 0.19 262);
+  --primary-foreground: oklch(0.99 0 0);
+  --secondary: oklch(0.27 0.016 266);
+  --secondary-foreground: oklch(0.945 0.005 260);
+  --muted: oklch(0.27 0.016 266);
+  --muted-foreground: oklch(0.7 0.014 262);
+  --accent: oklch(0.3 0.035 262);
+  --accent-foreground: oklch(0.88 0.06 262);
+  --destructive: oklch(0.68 0.19 25);
+  --success: oklch(0.7 0.14 155);
+  --warning: oklch(0.78 0.15 75);
+  --border: rgb(255 255 255 / 0.1);
+  --input: rgb(255 255 255 / 0.14);
+  --ring: oklch(0.64 0.19 262);
+
+  --chart-1: oklch(0.64 0.19 262);
+  --chart-2: oklch(0.72 0.12 212);
+  --chart-3: oklch(0.7 0.14 158);
+  --chart-4: oklch(0.78 0.15 72);
+  --chart-5: oklch(0.68 0.15 315);
+
+  --glass-tint: 30 36 58;
+  --glass-thin: 0.34;
+  --glass-regular: 0.5;
+  --glass-thick: 0.66;
+  --glass-blur: 30px;
+  --glass-saturate: 160%;
+  --glass-specular: rgb(255 255 255 / 0.22);
+  --glass-specular-soft: rgb(255 255 255 / 0.08);
+  --glass-edge: rgb(255 255 255 / 0.12);
+  --glass-ring: rgb(0 0 0 / 0.4);
+  --glass-shadow:
+    0 1px 2px -1px rgb(0 0 0 / 0.4),
+    0 10px 24px -14px rgb(0 0 0 / 0.6),
+    0 28px 64px -30px rgb(0 0 0 / 0.7);
+  --glass-shadow-lift:
+    0 2px 4px -2px rgb(0 0 0 / 0.45),
+    0 18px 36px -16px rgb(0 0 0 / 0.65),
+    0 40px 80px -34px rgb(0 0 0 / 0.75);
+  --glass-sheen: rgb(255 255 255 / 0.14);
+
+  --ambient-1: oklch(0.52 0.21 262 / 0.55);
+  --ambient-2: oklch(0.56 0.16 205 / 0.42);
+  --ambient-3: oklch(0.5 0.13 296 / 0.3);
+  --ambient-base: oklch(0.155 0.012 266);
+
+  --sidebar: oklch(0.185 0.014 266);
+  --sidebar-foreground: oklch(0.9 0.006 260);
+  --sidebar-muted-foreground: oklch(0.63 0.014 262);
+  --sidebar-primary: oklch(0.64 0.19 262);
+  --sidebar-primary-foreground: oklch(0.99 0 0);
+  --sidebar-accent: oklch(0.3 0.02 266);
+  --sidebar-accent-foreground: oklch(0.97 0 0);
+  --sidebar-border: rgb(255 255 255 / 0.09);
+  --sidebar-ring: oklch(0.64 0.19 262);
+  --sidebar-tint: 18 22 38;
+}
+
+/* ------------------------------------------------------------------ *
+ * Utilidades de cristal
+ * ------------------------------------------------------------------ */
+
+/** Superficie translucida estandar: tarjetas y paneles. */
+@utility glass {
+  background-color: rgb(var(--glass-tint) / var(--glass-regular));
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  border: 1px solid var(--glass-edge);
+  box-shadow:
+    inset 0 1px 0 0 var(--glass-specular),
+    inset 0 -1px 0 0 var(--glass-specular-soft),
+    inset 0 0 0 1px var(--glass-ring),
+    var(--glass-shadow);
+}
+
+/** Mas opaca y mas desenfocada: barra lateral, dialogos, menus. */
+@utility glass-thick {
+  background-color: rgb(var(--glass-tint) / var(--glass-thick));
+  -webkit-backdrop-filter: blur(calc(var(--glass-blur) * 1.6)) saturate(var(--glass-saturate));
+  backdrop-filter: blur(calc(var(--glass-blur) * 1.6)) saturate(var(--glass-saturate));
+  border: 1px solid var(--glass-edge);
+  box-shadow:
+    inset 0 1px 0 0 var(--glass-specular),
+    inset 0 0 0 1px var(--glass-ring),
+    var(--glass-shadow-lift);
+}
+
+/** Apenas perceptible: filas de tabla, chips, estados hover. */
+@utility glass-thin {
+  background-color: rgb(var(--glass-tint) / var(--glass-thin));
+  -webkit-backdrop-filter: blur(calc(var(--glass-blur) * 0.6)) saturate(140%);
+  backdrop-filter: blur(calc(var(--glass-blur) * 0.6)) saturate(140%);
+  border: 1px solid var(--glass-edge);
+}
+
+/** La barra lateral flotante: cristal oscuro sobre la luz del fondo. */
+@utility glass-nav {
+  background-color: rgb(var(--sidebar-tint) / 0.84);
+  -webkit-backdrop-filter: blur(30px) saturate(165%);
+  backdrop-filter: blur(30px) saturate(165%);
+  border: 1px solid rgb(255 255 255 / 0.1);
+  box-shadow:
+    inset 0 1px 0 0 rgb(255 255 255 / 0.15),
+    inset 0 0 0 1px rgb(0 0 0 / 0.2),
+    var(--glass-shadow-lift);
+}
+
+/** Cristal oscuro sobre la barra lateral, que ya es oscura de por si. */
+@utility glass-sidebar {
+  background-color: rgb(var(--sidebar-tint) / 0.55);
+  -webkit-backdrop-filter: blur(18px) saturate(150%);
+  backdrop-filter: blur(18px) saturate(150%);
+  border: 1px solid rgb(255 255 255 / 0.09);
+  box-shadow:
+    inset 0 1px 0 0 rgb(255 255 255 / 0.1),
+    0 8px 24px -16px rgb(0 0 0 / 0.6);
+}
+
+/** Se eleva al pasar el puntero. */
+@utility glass-interactive {
+  transition:
+    transform 0.4s var(--ease-glass),
+    box-shadow 0.4s var(--ease-glass),
+    background-color 0.3s var(--ease-out-soft);
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow:
+      inset 0 1px 0 0 var(--glass-specular),
+      inset 0 -1px 0 0 var(--glass-specular-soft),
+      inset 0 0 0 1px var(--glass-ring),
+      var(--glass-shadow-lift);
+  }
+
+  &:active {
+    transform: translateY(0);
+    transition-duration: 0.1s;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  html {
+    @apply font-sans;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    @apply text-foreground;
+    background-color: var(--ambient-base);
+    font-feature-settings: "cv11", "ss01";
+    /* El cristal necesita algo que refractar: esta es esa luz. */
+    background-image:
+      radial-gradient(72rem 52rem at 4% -10%, var(--ambient-1), transparent 58%),
+      radial-gradient(64rem 46rem at 100% 12%, var(--ambient-2), transparent 56%),
+      radial-gradient(60rem 48rem at 24% 88%, var(--ambient-3), transparent 60%),
+      radial-gradient(56rem 40rem at 90% 94%, var(--ambient-2), transparent 62%);
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+  }
+
+  /* Cifras alineadas en tablas y metricas. */
+  .tnum {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum";
+  }
+}
+
+/* ------------------------------------------------------------------ *
+ * Animaciones
+ * ------------------------------------------------------------------ */
+
+@keyframes glass-rise {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes glass-shimmer {
+  from {
+    background-position: -160% 0;
+  }
+  to {
+    background-position: 260% 0;
+  }
+}
+
+@utility animate-rise {
+  animation: glass-rise 0.55s var(--ease-glass) both;
+}
+
+/** Esqueleto de carga con un reflejo que recorre la superficie. */
+@utility shimmer {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: linear-gradient(
+      100deg,
+      transparent 20%,
+      var(--glass-sheen) 50%,
+      transparent 80%
+    );
+    background-size: 220% 100%;
+    background-repeat: no-repeat;
+    animation: glass-shimmer 1.8s linear infinite;
+  }
+}
+
+/*
+ * Accesibilidad: quien pide menos movimiento recibe el mismo diseño sin
+ * desplazamientos. El cristal se queda; lo que desaparece es el movimiento.
+ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .glass-interactive:hover {
+    transform: none;
+  }
 }
