@@ -4,6 +4,11 @@ import {
   LayoutDashboard,
   Package,
   Settings,
+  ChartNoAxesColumn,
+  Factory,
+  FileUp,
+  HandCoins,
+  ScrollText,
   ShoppingCart,
   Tags,
   Truck,
@@ -39,17 +44,37 @@ export const navigation: NavSection[] = [
   {
     title: "Operacion",
     items: [
-      { label: "Inventario", href: "/inventory", icon: Boxes, disabled: true },
-      { label: "Bodegas", href: "/warehouses", icon: Warehouse, disabled: true },
-      { label: "Movimientos", href: "/movements", icon: ArrowLeftRight, disabled: true },
+      { label: "Inventario", href: "/inventory", icon: Boxes, permission: "inventory.read" },
+      { label: "Bodegas", href: "/warehouses", icon: Warehouse, permission: "warehouses.read" },
+      {
+        label: "Movimientos",
+        href: "/movements",
+        icon: ArrowLeftRight,
+        permission: "inventory.read",
+      },
     ],
   },
   {
     title: "Comercial",
     items: [
-      { label: "Ventas", href: "/sales", icon: ShoppingCart, disabled: true },
-      { label: "Compras", href: "/purchases", icon: Truck, disabled: true },
-      { label: "Clientes", href: "/customers", icon: Users, disabled: true },
+      { label: "Ventas", href: "/sales", icon: ShoppingCart, permission: "sales.read" },
+      { label: "Compras", href: "/purchases", icon: Truck, permission: "purchases.read" },
+      { label: "Fiado", href: "/credit", icon: HandCoins, permission: "credit.read" },
+      { label: "Clientes", href: "/customers", icon: Users, permission: "customers.read" },
+      { label: "Proveedores", href: "/suppliers", icon: Factory, permission: "suppliers.read" },
+    ],
+  },
+  {
+    title: "Analisis",
+    items: [
+      {
+        label: "Informes",
+        href: "/reports",
+        icon: ChartNoAxesColumn,
+        permission: "reports.read",
+      },
+      { label: "Auditoria", href: "/audit", icon: ScrollText, permission: "audit.read" },
+      { label: "Importar", href: "/imports", icon: FileUp, permission: "imports.read" },
     ],
   },
 ];
