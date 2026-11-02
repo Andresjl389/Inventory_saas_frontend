@@ -3,11 +3,16 @@ import type { ReactNode } from "react";
 
 import { AppShell } from "@/components/shared/app-shell/app-shell";
 import type { User } from "@/features/auth/types/auth.types";
-import type { Membership } from "@/features/companies/types/company.types";
+import {
+  membershipRole,
+  type Membership,
+} from "@/features/companies/types/company.types";
 import { isApiError } from "@/lib/api/errors";
 import { serverApi } from "@/lib/api/server";
 import { readSessionCookies } from "@/lib/auth/session";
 import { SessionProvider } from "@/providers/session-provider";
+
+import { isPlatformAdmin } from "../(platform)/layout";
 
 /**
  * Shell del dashboard. Es un Server Component: el usuario, sus empresas y el
@@ -30,7 +35,11 @@ export default async function DashboardLayout({ children }: { children: ReactNod
       serverApi<Membership[]>("/companies"),
     ]);
   } catch (error) {
-    if (isApiError(error) && error.isUnauthorized) redirect("/login");
+    if (isApiError(error)) {
+      if (error.isUnauthorized) redirect("/login");
+      // La empresa quedo suspendida entre dos peticiones.
+      if (error.code === "INVALID_COMPANY") redirect("/company-suspended");
+    }
     throw error;
   }
 
@@ -40,14 +49,18 @@ export default async function DashboardLayout({ children }: { children: ReactNod
   );
   if (!membership) redirect("/select-company");
 
+  const platformAdmin = await isPlatformAdmin();
+
   return (
     <SessionProvider
       user={user}
       memberships={memberships}
+      isPlatformAdmin={platformAdmin}
       tenant={{
         companyId: membership.company_id,
         companyName: membership.company_name,
-        role: membership.role,
+        roleCode: membershipRole(membership),
+        permissions: membership.permissions ?? [],
       }}
     >
       <AppShell>{children}</AppShell>

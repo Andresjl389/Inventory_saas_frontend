@@ -63,7 +63,30 @@ function createClient(base: string) {
     return (text ? JSON.parse(text) : undefined) as T;
   }
 
+  /**
+   * Subida de archivos. No se fija `Content-Type`: el navegador lo pone junto
+   * con el `boundary`, y escribirlo a mano rompe el multipart.
+   */
+  async function upload<T>(path: string, form: FormData, options: RequestOptions = {}): Promise<T> {
+    let response: Response;
+    try {
+      response = await fetch(buildUrl(base, path, options.params), {
+        method: "POST",
+        signal: options.signal,
+        body: form,
+      });
+    } catch (cause) {
+      if (cause instanceof DOMException && cause.name === "AbortError") throw cause;
+      throw new ApiError(0, "NETWORK_ERROR", "Sin conexion con el servidor");
+    }
+
+    if (!response.ok) throw await toApiError(response);
+    const text = await response.text();
+    return (text ? JSON.parse(text) : undefined) as T;
+  }
+
   return {
+    upload,
     get: <T>(path: string, options?: RequestOptions) => request<T>("GET", path, undefined, options),
     post: <T>(path: string, body?: unknown, options?: RequestOptions) =>
       request<T>("POST", path, body ?? {}, options),

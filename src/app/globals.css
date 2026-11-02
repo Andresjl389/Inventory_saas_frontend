@@ -199,6 +199,59 @@
   --sidebar-tint: 18 22 38;
 }
 
+/*
+ * Ambito de plataforma.
+ *
+ * El area de super administrador usa el mismo sistema de diseno pero con el
+ * acento en ambar y la luz ambiental calida. Es deliberado: operar la
+ * plataforma y trabajar dentro de una empresa no se pueden confundir de un
+ * vistazo, y un color es mas rapido de leer que un texto.
+ */
+[data-scope="platform"] {
+  --primary: oklch(0.63 0.155 58);
+  --primary-foreground: oklch(0.99 0 0);
+  --ring: oklch(0.63 0.155 58);
+  --accent: oklch(0.95 0.03 70);
+  --accent-foreground: oklch(0.42 0.11 58);
+
+  --sidebar-primary: oklch(0.66 0.15 58);
+  --sidebar-ring: oklch(0.66 0.15 58);
+  --sidebar-tint: 38 30 22;
+
+  --ambient-1: oklch(0.76 0.13 65 / 0.45);
+  --ambient-2: oklch(0.78 0.1 35 / 0.36);
+  --ambient-3: oklch(0.72 0.09 100 / 0.22);
+
+  /*
+   * La luz la pinta `body` a partir de sus propias variables, asi que
+   * redefinirlas aqui no basta: el ambito tiene que pintar la suya encima.
+   */
+  background-color: var(--ambient-base);
+  background-image:
+    radial-gradient(72rem 52rem at 4% -10%, var(--ambient-1), transparent 58%),
+    radial-gradient(64rem 46rem at 100% 12%, var(--ambient-2), transparent 56%),
+    radial-gradient(60rem 48rem at 24% 88%, var(--ambient-3), transparent 60%),
+    radial-gradient(56rem 40rem at 90% 94%, var(--ambient-2), transparent 62%);
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+}
+
+.dark [data-scope="platform"],
+[data-scope="platform"].dark {
+  --primary: oklch(0.7 0.14 58);
+  --ring: oklch(0.7 0.14 58);
+  --accent: oklch(0.32 0.05 58);
+  --accent-foreground: oklch(0.88 0.08 65);
+
+  --sidebar-primary: oklch(0.7 0.14 58);
+  --sidebar-ring: oklch(0.7 0.14 58);
+  --sidebar-tint: 32 25 18;
+
+  --ambient-1: oklch(0.55 0.15 58 / 0.42);
+  --ambient-2: oklch(0.5 0.12 35 / 0.32);
+  --ambient-3: oklch(0.5 0.1 100 / 0.22);
+}
+
 /* ------------------------------------------------------------------ *
  * Utilidades de cristal
  * ------------------------------------------------------------------ */

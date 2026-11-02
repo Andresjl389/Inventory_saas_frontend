@@ -15,6 +15,7 @@ const CODE_TO_FIELD: Record<string, string> = {
   EMAIL_ALREADY_REGISTERED: "email",
   USER_NOT_FOUND: "email",
   MEMBERSHIP_ALREADY_EXISTS: "email",
+  ROLE_NOT_FOUND: "role",
   INVALID_CREDENTIALS: "password",
 };
 

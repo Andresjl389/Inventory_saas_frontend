@@ -7,7 +7,10 @@ import { useCompanyId } from "@/stores/tenant.store";
 
 import { companiesApi } from "../api/companies.api";
 import { companyKeys } from "../api/companies.keys";
-import type { AddMemberInput } from "../schemas/company.schema";
+import type {
+  AddMemberInput,
+  ChangeMemberRoleInput,
+} from "../schemas/company.schema";
 
 export function useCompanyMembers(options: { enabled?: boolean } = {}) {
   const companyId = useCompanyId();
@@ -16,6 +19,21 @@ export function useCompanyMembers(options: { enabled?: boolean } = {}) {
     queryKey: companyKeys.members(companyId),
     queryFn: () => companiesApi.listMembers(),
     enabled: options.enabled ?? true,
+  });
+}
+
+export function useChangeMemberRole() {
+  const companyId = useCompanyId();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    meta: { silent: true },
+    mutationFn: ({ userId, input }: { userId: string; input: ChangeMemberRoleInput }) =>
+      companiesApi.changeMemberRole(userId, input),
+    onSuccess: (member) => {
+      queryClient.invalidateQueries({ queryKey: companyKeys.members(companyId) });
+      toast.success(`${member.full_name} actualizado`);
+    },
   });
 }
 

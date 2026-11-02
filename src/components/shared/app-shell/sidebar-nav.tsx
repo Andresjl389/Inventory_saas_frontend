@@ -3,12 +3,13 @@
 import { motion } from "motion/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import type { ReactNode } from "react";
 
 import { springSoft } from "@/components/shared/motion/transitions";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { navigation, secondaryNavigation, type NavItem } from "@/config/navigation";
-import { usePermission } from "@/providers/session-provider";
+import { ShieldCheck } from "lucide-react";
+import { useEffectivePermissions } from "@/features/roles/hooks/use-effective-permissions";
+import { useSession } from "@/providers/session-provider";
 import { cn } from "cn";
 
 function isActive(pathname: string, href: string): boolean {
@@ -109,6 +110,16 @@ export function SidebarNav({
   groupId?: string;
   onNavigate?: () => void;
 }) {
+  const { isPlatformAdmin } = useSession();
+
+  /* El acceso a plataforma solo aparece si el backend confirmo que lo es. */
+  const accountItems: NavItem[] = isPlatformAdmin
+    ? [
+        ...secondaryNavigation,
+        { label: "Plataforma", href: "/admin", icon: ShieldCheck },
+      ]
+    : secondaryNavigation;
+
   return (
     <nav className="flex flex-1 flex-col gap-6 overflow-y-auto px-3 py-4" aria-label="Principal">
       {navigation.map((section) => (
@@ -125,7 +136,7 @@ export function SidebarNav({
       <div className="mt-auto">
         <SidebarSection
           title="Cuenta"
-          items={secondaryNavigation}
+          items={accountItems}
           collapsed={collapsed}
           groupId={groupId}
           onNavigate={onNavigate}
@@ -148,6 +159,19 @@ function SidebarSection({
   groupId: string;
   onNavigate?: () => void;
 }) {
+  /*
+   * El filtro va aqui y no en cada enlace: si se oculta item por item, un rol
+   * que no llega a ninguno de los destinos del grupo se queda con el titulo
+   * flotando sobre nada. Le pasa a SELLER con "Analisis".
+   *
+   * `can` viene de un hook, asi que se resuelve una vez para toda la seccion
+   * en vez de llamarlo dentro del map.
+   */
+  const { can } = useEffectivePermissions();
+  const visible = items.filter((item) => !item.permission || can(item.permission));
+
+  if (visible.length === 0) return null;
+
   return (
     <div className="space-y-1">
       {!collapsed ? (
@@ -155,29 +179,15 @@ function SidebarSection({
           {title}
         </p>
       ) : null}
-      {items.map((item) => (
-        <PermissionGate key={item.href} permission={item.permission}>
-          <NavLink
-            item={item}
-            collapsed={collapsed}
-            groupId={groupId}
-            onNavigate={onNavigate}
-          />
-        </PermissionGate>
+      {visible.map((item) => (
+        <NavLink
+          key={item.href}
+          item={item}
+          collapsed={collapsed}
+          groupId={groupId}
+          onNavigate={onNavigate}
+        />
       ))}
     </div>
   );
-}
-
-/** Oculta secciones que el rol no puede abrir. El backend valida igualmente. */
-function PermissionGate({
-  permission,
-  children,
-}: {
-  permission?: string;
-  children: ReactNode;
-}) {
-  const allowed = usePermission(permission ?? "");
-  if (permission && !allowed) return null;
-  return <>{children}</>;
 }

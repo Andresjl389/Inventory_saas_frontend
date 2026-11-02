@@ -4,7 +4,7 @@ import { RotateCw, TriangleAlert } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { cn } from "cn";
-import { errorMessage } from "@/lib/api/errors";
+import { errorMessage, isApiError } from "@/lib/api/errors";
 
 export function ErrorState({
   error,
@@ -31,6 +31,12 @@ export function ErrorState({
       <div className="space-y-1">
         <p className="text-sm font-medium">{title}</p>
         <p className="text-sm text-muted-foreground max-w-sm">{errorMessage(error)}</p>
+        {isApiError(error) && error.requestId ? (
+          /* Con este identificador se encuentra la peticion en los logs. */
+          <p className="font-mono text-[11px] text-muted-foreground/80">
+            ID: {error.requestId}
+          </p>
+        ) : null}
       </div>
       {onRetry ? (
         <Button variant="outline" size="sm" onClick={onRetry}>

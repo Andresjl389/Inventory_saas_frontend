@@ -65,7 +65,19 @@ export function proxy(request: NextRequest) {
     return NextResponse.redirect(refresh);
   }
 
-  if (pathname === "/select-company") return NextResponse.next();
+  if (pathname === "/select-company" || pathname === "/company-suspended") {
+    return NextResponse.next();
+  }
+
+  /*
+   * El area de plataforma no pertenece a ningun inquilino: quien administra el
+   * SaaS puede no tener empresa, asi que no se le puede exigir una. Quien no
+   * sea administrador lo rebota el layout, que es quien puede preguntarselo al
+   * backend.
+   */
+  if (pathname === "/admin" || pathname.startsWith("/admin/")) {
+    return NextResponse.next();
+  }
 
   if (!hasCompany) {
     return NextResponse.redirect(new URL("/select-company", request.url));

@@ -30,7 +30,6 @@ export function RegisterForm() {
       email: "",
       password: "",
       confirmPassword: "",
-      company_name: "",
     },
   });
 
@@ -65,21 +64,6 @@ export function RegisterForm() {
             />
           </FormField>
         </div>
-
-        <FormField
-          id="company_name"
-          label="Nombre de la empresa"
-          required
-          error={errors.company_name?.message}
-          description="Se crea junto con tu cuenta y quedaras como propietario."
-        >
-          <Input
-            id="company_name"
-            autoComplete="organization"
-            aria-invalid={Boolean(errors.company_name)}
-            {...register("company_name")}
-          />
-        </FormField>
 
         <FormField id="email" label="Correo" required error={errors.email?.message}>
           <Input

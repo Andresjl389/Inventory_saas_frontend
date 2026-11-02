@@ -29,6 +29,25 @@ export function formatNumber(value: number | null | undefined): string {
   return new Intl.NumberFormat(appConfig.locale).format(value ?? 0);
 }
 
+/**
+ * Cantidades. Se guardan como Decimal(18,4) porque hay productos que se venden
+ * al peso, pero "5.0000" se lee mal: aqui se muestran los decimales que de
+ * verdad tiene el numero, hasta cuatro.
+ */
+export function formatQuantity(value: Money | null | undefined): string {
+  return new Intl.NumberFormat(appConfig.locale, {
+    maximumFractionDigits: 4,
+  }).format(toNumber(value));
+}
+
+/** Igual que `formatQuantity` pero con el signo explicito, para movimientos. */
+export function formatSignedQuantity(value: Money | null | undefined): string {
+  const parsed = toNumber(value);
+  const formatted = formatQuantity(Math.abs(parsed));
+  if (parsed === 0) return formatted;
+  return `${parsed > 0 ? "+" : "-"}${formatted}`;
+}
+
 export function formatPercent(value: number | null | undefined): string {
   return new Intl.NumberFormat(appConfig.locale, {
     style: "percent",

@@ -1,6 +1,6 @@
 "use client";
 
-import { Building2, Loader2, LogOut, Plus } from "lucide-react";
+import { Building2, Loader2, LogOut } from "lucide-react";
 import { useState } from "react";
 
 import { EmptyState } from "@/components/shared/empty-state";
@@ -8,12 +8,12 @@ import { GlassPanel } from "@/components/shared/glass-panel";
 import { Reveal, Stagger, StaggerItem } from "@/components/shared/motion/reveal";
 import { ErrorState } from "@/components/shared/error-state";
 import { Button } from "@/components/ui/button";
-import { ROLE_LABELS } from "@/config/permissions";
+import { roleLabel } from "@/config/permissions";
 import { useLogout } from "@/features/auth/hooks/use-logout";
 
+import { membershipRole } from "../types/company.types";
 import { useMemberships } from "../hooks/use-memberships";
 import { useSwitchCompany } from "../hooks/use-switch-company";
-import { CreateCompanyDialog } from "./create-company-dialog";
 
 /**
  * Pantalla intermedia cuando el usuario pertenece a mas de una empresa.
@@ -23,7 +23,6 @@ export function CompanyPicker() {
   const memberships = useMemberships();
   const switchCompany = useSwitchCompany();
   const logout = useLogout();
-  const [createOpen, setCreateOpen] = useState(false);
   const [selected, setSelected] = useState<string | null>(null);
 
   const choose = (companyId: string) => {
@@ -53,13 +52,7 @@ export function CompanyPicker() {
           <EmptyState
             icon={Building2}
             title="Todavia no perteneces a ninguna empresa"
-            description="Crea una para empezar, o pide a un administrador que te agregue a la suya."
-            action={
-              <Button size="sm" onClick={() => setCreateOpen(true)}>
-                <Plus aria-hidden />
-                Crear empresa
-              </Button>
-            }
+            description="Las empresas las da de alta el equipo de la plataforma. Pidele a tu administrador que te agregue a la suya y vuelve a entrar."
           />
         ) : (
           <Stagger as="ul" className="divide-y divide-white/40 dark:divide-white/6">
@@ -81,7 +74,7 @@ export function CompanyPicker() {
                         {membership.company_name}
                       </span>
                       <span className="block text-xs text-muted-foreground">
-                        {ROLE_LABELS[membership.role]}
+                        {roleLabel(membershipRole(membership))}
                         {membership.is_active ? "" : " - inactiva"}
                       </span>
                     </span>
@@ -96,11 +89,7 @@ export function CompanyPicker() {
         )}
       </GlassPanel>
 
-      <div className="flex items-center justify-between">
-        <Button variant="outline" size="sm" onClick={() => setCreateOpen(true)}>
-          <Plus aria-hidden />
-          Crear empresa
-        </Button>
+      <div className="flex items-center justify-end">
         <Button
           variant="ghost"
           size="sm"
@@ -111,8 +100,6 @@ export function CompanyPicker() {
           Cerrar sesion
         </Button>
       </div>
-
-      <CreateCompanyDialog open={createOpen} onOpenChange={setCreateOpen} />
     </Reveal>
   );
 }

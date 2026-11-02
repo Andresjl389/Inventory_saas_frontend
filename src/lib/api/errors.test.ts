@@ -22,6 +22,19 @@ describe("toApiError", () => {
     expect(error.details).toEqual({ sku: "MAR-01" });
   });
 
+  it("traduce un 405 aunque el backend lo etiquete como HTTP_ERROR", async () => {
+    // Pasa con las rutas retiradas, como la creacion de empresas: el codigo
+    // generico deja un mensaje que no explica nada.
+    const error = await toApiError(
+      jsonResponse(405, {
+        error: { code: "HTTP_ERROR", message: "Method Not Allowed", details: {} },
+      }),
+    );
+
+    expect(error.code).toBe("METHOD_NOT_ALLOWED");
+    expect(error.userMessage).toBe("Esa operacion ya no existe en el servidor.");
+  });
+
   it("cae en HTTP_ERROR cuando la respuesta no es JSON del backend", async () => {
     const error = await toApiError(new Response("<html>502</html>", { status: 502 }));
     expect(error.code).toBe("HTTP_ERROR");

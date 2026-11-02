@@ -32,6 +32,14 @@ function handleSessionError(error: unknown): boolean {
     return true;
   }
 
+  // Empresa suspendida: no es lo mismo que no pertenecer a ella, y merece su
+  // propia pantalla en vez de un toast que no explica nada.
+  if (error.code === "INVALID_COMPANY") {
+    // eslint-disable-next-line @next/next/no-location-assign-relative-destination -- recarga completa: todo el estado del tenant deja de valer
+    window.location.href = "/company-suspended";
+    return true;
+  }
+
   return false;
 }
 

@@ -4,7 +4,7 @@ import { createContext, useContext, useState, type ReactNode } from "react";
 import { createStore, useStore } from "zustand";
 import { useShallow } from "zustand/react/shallow";
 
-import type { CompanyRole } from "@/config/permissions";
+import type { RoleCode } from "@/config/permissions";
 
 /**
  * Empresa activa en el cliente.
@@ -21,7 +21,12 @@ import type { CompanyRole } from "@/config/permissions";
 export type TenantState = {
   companyId: string;
   companyName: string;
-  role: CompanyRole;
+  roleCode: RoleCode;
+  /**
+   * Permisos efectivos tal como los manda el servidor. Vacio mientras la API
+   * no los incluya; entonces se recurre al mapa local de roles del sistema.
+   */
+  permissions: readonly string[];
 };
 
 type TenantStore = TenantState & {
@@ -72,7 +77,8 @@ export function useTenant(): TenantState {
     useShallow((state) => ({
       companyId: state.companyId,
       companyName: state.companyName,
-      role: state.role,
+      roleCode: state.roleCode,
+      permissions: state.permissions,
     })),
   );
 }

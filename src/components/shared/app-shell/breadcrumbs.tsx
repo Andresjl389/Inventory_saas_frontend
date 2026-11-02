@@ -6,6 +6,11 @@ import { usePathname } from "next/navigation";
 
 import { navigation, secondaryNavigation } from "@/config/navigation";
 
+/** Segmentos fijos que no son una seccion del menu. */
+const STATIC_LABELS: Record<string, string> = {
+  new: "Nueva",
+};
+
 const LABELS = new Map(
   [...navigation.flatMap((section) => section.items), ...secondaryNavigation].map((item) => [
     item.href,
@@ -23,7 +28,7 @@ export function Breadcrumbs() {
     const isId = /^[0-9a-f]{8}-[0-9a-f]{4}-/i.test(segment);
     return {
       href,
-      label: LABELS.get(href) ?? (isId ? "Detalle" : segment),
+      label: LABELS.get(href) ?? STATIC_LABELS[segment] ?? (isId ? "Detalle" : segment),
       isLast: index === segments.length - 1,
     };
   });

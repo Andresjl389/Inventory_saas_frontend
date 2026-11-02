@@ -18,7 +18,6 @@ export const registerSchema = z
       .min(8, "Minimo 8 caracteres")
       .max(72, "Maximo 72 caracteres"),
     confirmPassword: z.string(),
-    company_name: z.string().trim().min(1, "Escribe el nombre de tu empresa").max(200),
   })
   .refine((data) => data.password === data.confirmPassword, {
     path: ["confirmPassword"],

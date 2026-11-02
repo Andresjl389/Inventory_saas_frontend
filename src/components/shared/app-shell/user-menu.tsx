@@ -17,7 +17,7 @@ import { useLogout } from "@/features/auth/hooks/use-logout";
 import { fullName, initials } from "@/features/auth/types/auth.types";
 import { useSession } from "@/providers/session-provider";
 
-export function UserMenu() {
+export function UserMenu({ settingsHref = "/settings" }: { settingsHref?: string | null } = {}) {
   const { user } = useSession();
   const logout = useLogout();
   const name = fullName(user);
@@ -45,13 +45,17 @@ export function UserMenu() {
           <span className="block truncate text-xs text-muted-foreground">{user.email}</span>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem asChild>
-          <Link href="/settings" className="gap-2">
-            <Settings className="size-4" aria-hidden />
-            Ajustes
-          </Link>
-        </DropdownMenuItem>
-        <DropdownMenuSeparator />
+        {settingsHref ? (
+          <>
+            <DropdownMenuItem asChild>
+              <Link href={settingsHref} className="gap-2">
+                <Settings className="size-4" aria-hidden />
+                Ajustes
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+          </>
+        ) : null}
         <DropdownMenuItem
           variant="destructive"
           disabled={logout.isPending}

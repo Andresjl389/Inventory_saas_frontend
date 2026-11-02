@@ -46,7 +46,17 @@ async function handler(
   }
 
   const target = `${apiEndpoint(`/${route}`)}${request.nextUrl.search}`;
-  const body = METHODS_WITH_BODY.has(request.method) ? await request.text() : undefined;
+
+  /*
+   * El cuerpo se reenvia en binario, no como texto: por aqui pasan tanto JSON
+   * como subidas multipart, y convertir bytes a cadena corrompe un archivo.
+   * `arrayBuffer` devuelve una copia, asi que se puede reenviar otra vez si
+   * hay que reintentar con un token nuevo.
+   */
+  const body = METHODS_WITH_BODY.has(request.method)
+    ? await request.arrayBuffer()
+    : undefined;
+  const contentType = request.headers.get("content-type");
 
   const call = (token: string | null) =>
     fetch(target, {
@@ -54,9 +64,9 @@ async function handler(
       headers: {
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
         ...(companyId ? { "X-Company-ID": companyId } : {}),
-        ...(body ? { "Content-Type": "application/json" } : {}),
+        ...(contentType ? { "Content-Type": contentType } : {}),
       },
-      body: body || undefined,
+      body: body && body.byteLength > 0 ? body : undefined,
       cache: "no-store",
     });
 
@@ -85,14 +95,19 @@ async function handler(
     return new NextResponse(null, { status: 204 });
   }
 
-  const text = await upstream.text();
-  return new NextResponse(text, {
-    status: upstream.status,
-    headers: {
-      "Content-Type": upstream.headers.get("content-type") ?? "application/json",
-      "Cache-Control": "no-store",
-    },
+  // Tambien binaria: por aqui vuelven las descargas de archivos e imagenes.
+  const payload = await upstream.arrayBuffer();
+  const headers = new Headers({
+    "Content-Type": upstream.headers.get("content-type") ?? "application/json",
+    "Cache-Control": "no-store",
   });
+  const disposition = upstream.headers.get("content-disposition");
+  if (disposition) headers.set("Content-Disposition", disposition);
+  // Va a los logs del backend: sirve para rastrear un fallo concreto.
+  const requestId = upstream.headers.get("x-request-id");
+  if (requestId) headers.set("X-Request-ID", requestId);
+
+  return new NextResponse(payload, { status: upstream.status, headers });
 }
 
 export {

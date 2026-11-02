@@ -10,14 +10,11 @@ export function useRegister() {
     mutationKey: ["auth", "register"],
     meta: { silent: true },
     mutationFn: (input: RegisterInput) => authApi.register(input),
-    onSuccess: ({ companyId, requiresLogin }) => {
-      if (requiresLogin) {
-  // eslint-disable-next-line @next/next/no-location-assign-relative-destination -- recarga completa deliberada: las cookies de sesion acaban de cambiar
-        window.location.assign("/login");
-        return;
-      }
-   
-      window.location.assign(companyId ? "/dashboard" : "/select-company");
+    // Una cuenta nueva no pertenece a ninguna empresa, asi que siempre cae en
+    // el selector, que en ese caso explica que hay que pedir acceso.
+    onSuccess: ({ requiresLogin }) => {
+      // Recarga completa deliberada: las cookies de sesion acaban de cambiar.
+      window.location.assign(requiresLogin ? "/login" : "/select-company");
     },
   });
 }

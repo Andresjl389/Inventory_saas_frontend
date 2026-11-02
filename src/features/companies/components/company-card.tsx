@@ -8,7 +8,8 @@ import { Badge } from "@/components/ui/badge";
 import { formatDate } from "@/lib/format";
 
 import { useCurrentCompany } from "../hooks/use-current-company";
-import { COMPANY_STATUS_LABELS, DOCUMENT_TYPE_LABELS } from "../types/company.types";
+import { DOCUMENT_TYPE_LABELS } from "@/config/documents";
+import { COMPANY_STATUS_LABELS } from "../types/company.types";
 
 function Row({ label, value }: { label: string; value: ReactNode }) {
   return (

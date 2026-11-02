@@ -3,14 +3,21 @@ import { z } from "zod";
 
 import { apiEndpoint } from "@/config/env";
 import { toApiError } from "@/lib/api/errors";
-import { writeCompanyCookie, writeTokenCookies, type TokenPair } from "@/lib/auth/session";
+import { writeTokenCookies, type TokenPair } from "@/lib/auth/session";
 
+/**
+ * Registro.
+ *
+ * Crea **solo una cuenta**. Las empresas las crea el super administrador, asi
+ * que quien se registra no pertenece a ninguna hasta que alguien lo agregue.
+ * El campo `company_name` existia antes y ya no: cada error de digitacion
+ * creaba una empresa nueva.
+ */
 const bodySchema = z.object({
   email: z.email(),
   password: z.string().min(8).max(72),
   first_name: z.string().min(1).max(100),
   last_name: z.string().min(1).max(100),
-  company_name: z.string().min(1).max(200),
 });
 
 function apiErrorResponse(code: string, message: string, status: number, details = {}) {
@@ -37,9 +44,7 @@ export async function POST(request: NextRequest) {
     return apiErrorResponse(error.code, error.message, error.status, error.details);
   }
 
-  const { company_id: companyId } = (await created.json()) as { company_id: string | null };
-
-  // El registro no devuelve tokens: iniciamos sesion para dejar al usuario dentro.
+  // El registro no devuelve tokens: se inicia sesion para dejar al usuario dentro.
   const session = await fetch(apiEndpoint("/auth/login"), {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -49,12 +54,11 @@ export async function POST(request: NextRequest) {
 
   if (!session?.ok) {
     // La cuenta existe; solo falta el login. No es un error fatal.
-    return NextResponse.json({ companyId: null, requiresLogin: true }, { status: 201 });
+    return NextResponse.json({ requiresLogin: true }, { status: 201 });
   }
 
   const tokens = (await session.json()) as TokenPair;
   await writeTokenCookies(tokens);
-  if (companyId) await writeCompanyCookie(companyId);
 
-  return NextResponse.json({ companyId, requiresLogin: false }, { status: 201 });
+  return NextResponse.json({ requiresLogin: false }, { status: 201 });
 }
