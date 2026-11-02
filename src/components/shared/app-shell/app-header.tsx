@@ -1,5 +1,7 @@
 "use client";
 
+import { NotificationBell } from "@/features/notifications/components/notification-bell";
+
 import { Breadcrumbs } from "./breadcrumbs";
 import { MobileNav } from "./mobile-nav";
 import { ThemeToggle } from "./theme-toggle";
@@ -11,6 +13,7 @@ export function AppHeader() {
       <MobileNav />
       <Breadcrumbs />
       <div className="ml-auto flex items-center gap-1">
+        <NotificationBell />
         <ThemeToggle />
         <UserMenu />
       </div>
