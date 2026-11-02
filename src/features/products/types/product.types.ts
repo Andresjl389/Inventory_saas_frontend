@@ -11,6 +11,8 @@ export type Product = {
   barcode: string | null;
   cost_price: Money;
   sale_price: Money;
+  /** Umbral de reposicion: por debajo, el producto sale en "bajo minimo". */
+  min_stock: Money;
   is_active: boolean;
   created_at: string;
   updated_at: string;

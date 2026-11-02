@@ -26,6 +26,7 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { useCategories } from "@/features/categories/hooks/use-categories";
+import { ProductImages } from "@/features/files/components/product-images";
 import { formatPercent, margin, toNumber } from "@/lib/format";
 import { handleFormError } from "@/lib/forms";
 
@@ -54,6 +55,7 @@ function toFormValues(product?: Product | null): ProductFormValues {
       category_id: NO_CATEGORY,
       cost_price: "0",
       sale_price: "0",
+      min_stock: "0",
     };
   }
 
@@ -65,6 +67,7 @@ function toFormValues(product?: Product | null): ProductFormValues {
     category_id: product.category_id ?? NO_CATEGORY,
     cost_price: toInputPrice(product.cost_price),
     sale_price: toInputPrice(product.sale_price),
+    min_stock: toInputPrice(product.min_stock),
   };
 }
 
@@ -125,7 +128,7 @@ export function ProductFormDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-2xl">
+      <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-2xl">
         <DialogHeader>
           <DialogTitle>{isEdit ? "Editar producto" : "Nuevo producto"}</DialogTitle>
           <DialogDescription>
@@ -236,6 +239,21 @@ export function ProductFormDialog({
             </div>
 
             <FormField
+              id="product-min-stock"
+              label="Stock minimo"
+              error={errors.min_stock?.message}
+              description="Por debajo de esta cantidad el producto aparece en el informe de bajo minimo."
+            >
+              <Input
+                id="product-min-stock"
+                inputMode="decimal"
+                aria-invalid={Boolean(errors.min_stock)}
+                className="tnum"
+                {...register("min_stock")}
+              />
+            </FormField>
+
+            <FormField
               id="product-description"
               label="Descripcion"
               error={errors.description?.message}
@@ -247,6 +265,9 @@ export function ProductFormDialog({
                 {...register("description")}
               />
             </FormField>
+
+            {/* Las imagenes se adjuntan al producto, asi que necesitan su id. */}
+            {product ? <ProductImages productId={product.id} /> : null}
           </FieldGroup>
 
           <DialogFooter className="mt-6">

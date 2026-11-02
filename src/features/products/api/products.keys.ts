@@ -8,6 +8,8 @@ export const productKeys = {
     [...productKeys.lists(companyId), filters] as const,
   detail: (companyId: string, productId: string) =>
     [...productKeys.all(companyId), "detail", productId] as const,
+  /** Mapa id -> producto para listados que solo devuelven ids. */
+  directory: (companyId: string) => [...productKeys.all(companyId), "directory"] as const,
   /** Contadores del panel: consultas con `size=1` que solo leen `total`. */
   count: (companyId: string, scope: string) =>
     [...productKeys.all(companyId), "count", scope] as const,

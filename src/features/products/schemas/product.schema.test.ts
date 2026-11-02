@@ -7,6 +7,7 @@ const base = {
   sku: "MAR-01",
   cost_price: "10",
   sale_price: "20",
+  min_stock: "5",
 };
 
 describe("productSchema", () => {
@@ -36,6 +37,16 @@ describe("productSchema", () => {
     const result = productSchema.parse({ ...base, description: "  ", barcode: "" });
     expect(result.description).toBeNull();
     expect(result.barcode).toBeNull();
+  });
+
+  it("envia el stock minimo con la misma escala que los precios", () => {
+    // Es el umbral que usa el informe de bajo minimo, y el backend lo guarda
+    // como Decimal igual que el dinero.
+    expect(productSchema.parse(base).min_stock).toBe("5.0000");
+  });
+
+  it("rechaza un stock minimo negativo", () => {
+    expect(productSchema.safeParse({ ...base, min_stock: "-1" }).success).toBe(false);
   });
 
   it("exige nombre y SKU", () => {
