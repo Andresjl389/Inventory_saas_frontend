@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 
 import { ACCESS_TOKEN_COOKIE, COMPANY_COOKIE, REFRESH_TOKEN_COOKIE } from "@/lib/auth/cookies";
+import { appUrl } from "@/lib/http/app-url";
 
 /**
  * Enrutado de sesion. No valida firmas ni permisos: eso es del backend y de
@@ -47,20 +48,20 @@ export function proxy(request: NextRequest) {
   if (isPublic) {
     if (hasSession) {
       return NextResponse.redirect(
-        new URL(hasCompany ? "/dashboard" : "/select-company", request.url),
+        appUrl(hasCompany ? "/dashboard" : "/select-company", request),
       );
     }
     return NextResponse.next();
   }
 
   if (!hasSession) {
-    const login = new URL("/login", request.url);
+    const login = appUrl("/login", request);
     if (pathname !== "/") login.searchParams.set("next", `${pathname}${search}`);
     return NextResponse.redirect(login);
   }
 
   if (isAccessTokenExpired(accessToken) && refreshToken) {
-    const refresh = new URL("/api/auth/refresh", request.url);
+    const refresh = appUrl("/api/auth/refresh", request);
     refresh.searchParams.set("next", `${pathname}${search}`);
     return NextResponse.redirect(refresh);
   }
@@ -80,11 +81,11 @@ export function proxy(request: NextRequest) {
   }
 
   if (!hasCompany) {
-    return NextResponse.redirect(new URL("/select-company", request.url));
+    return NextResponse.redirect(appUrl("/select-company", request));
   }
 
   if (pathname === "/") {
-    return NextResponse.redirect(new URL("/dashboard", request.url));
+    return NextResponse.redirect(appUrl("/dashboard", request));
   }
 
   return NextResponse.next();

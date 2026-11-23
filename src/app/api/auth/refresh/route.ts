@@ -6,6 +6,7 @@ import {
   readSessionCookies,
   writeTokenCookies,
 } from "@/lib/auth/session";
+import { appUrl } from "@/lib/http/app-url";
 
 /**
  * Puente para los Server Components: ellos no pueden escribir cookies, asi que
@@ -20,15 +21,15 @@ export async function GET(request: NextRequest) {
   const { refreshToken } = await readSessionCookies();
   if (!refreshToken) {
     await clearSessionCookies();
-    return NextResponse.redirect(new URL("/login", request.url));
+    return NextResponse.redirect(appUrl("/login", request));
   }
 
   const tokens = await exchangeRefreshToken(refreshToken);
   if (!tokens) {
     await clearSessionCookies();
-    return NextResponse.redirect(new URL("/login", request.url));
+    return NextResponse.redirect(appUrl("/login", request));
   }
 
   await writeTokenCookies(tokens);
-  return NextResponse.redirect(new URL(next, request.url));
+  return NextResponse.redirect(appUrl(next, request));
 }
