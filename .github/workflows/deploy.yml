@@ -1,0 +1,33 @@
+name: Deploy production
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: inventory-frontend-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: [self-hosted, linux, x64, tivecla-production]
+    environment: production
+    timeout-minutes: 15
+    steps:
+      - name: Update, build and restart
+        working-directory: /srv/projects/Inventory_saas_frontend
+        run: |
+          set -euo pipefail
+          git fetch origin main
+          git checkout main
+          git merge --ff-only origin/main
+          corepack pnpm install --frozen-lockfile
+          corepack pnpm build
+          sudo systemctl restart inventory-saas-frontend.service
+          systemctl is-active --quiet inventory-saas-frontend.service
+          curl --fail --silent --show-error --retry 10 --retry-delay 1 \
+            --output /dev/null http://127.0.0.1:3000/login
